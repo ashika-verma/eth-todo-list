@@ -50,6 +50,7 @@ App = {
   },
   loadAccount: async () => {
     App.account = web3.eth.accounts[0];
+    web3.eth.defaultAccount = ethereum._state.accounts[0];
   },
   loadContract: async () => {
     const todoList = await $.getJSON("TodoList.json");
@@ -70,6 +71,7 @@ App = {
   renderTasks: async () => {
     // Load task count from blockchain
     const taskCount = await App.todoList.taskCount();
+    const $taskTemplate = $(".taskTemplate");
     for (var i = 1; i <= taskCount; i++) {
       const task = await App.todoList.tasks(i);
       const taskId = task[0].toNumber();
@@ -78,7 +80,6 @@ App = {
       console.log(taskId, taskContent, taskCompleted);
 
       // render each task with task template
-      const $taskTemplate = $(".taskTemplate");
       const $newTaskTemplate = $taskTemplate.clone();
       $newTaskTemplate.find(".content").html(taskContent);
       $newTaskTemplate
@@ -95,6 +96,14 @@ App = {
       }
       $newTaskTemplate.show();
     }
+  },
+
+  createTask: async () => {
+    App.setLoading(true);
+    const content = $("#newTask").val();
+    console.log(content);
+    await App.todoList.createTask(content);
+    window.location.reload();
   },
 
   setLoading: (boolean) => {
